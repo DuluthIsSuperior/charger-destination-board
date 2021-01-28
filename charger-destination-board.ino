@@ -14,7 +14,7 @@ void setup() {
   display.fillRect(TOP_LEFT_CORNER[0], TOP_LEFT_CORNER[1], BOTTOM_RIGHT_CORNER[0], BOTTOM_RIGHT_CORNER[1], AMBER); // start x, start y, end x, end y
 
   struct Map char_map;
-  char str[] = "VIOLET";
+  char str[] = "KYLE DICK";
   int x = 1;
   int y = 3;
   for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
@@ -24,7 +24,8 @@ void setup() {
   }
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+bool scrolling = false;
 
+void loop() {
+  
 }

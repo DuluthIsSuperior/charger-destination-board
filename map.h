@@ -9,184 +9,99 @@
 
 Adafruit_SSD1331 display = Adafruit_SSD1331(&SPI, cs, dc, rst);
 
-const int *const int_table[] PROGMEM = {
-  0, 0, 0, 6, 1, 0, 3, 0, 1, 3, 2, 3, 1, 6, 3, 6  // E
+const int *const int_table[] PROGMEM = {  // character (number of points + starting offset)
+  1, 0, 2, 0, 0, 1, 0, 6, 3, 1, 3, 6, 1, 4, 2, 4, // A (16 + 0)
+  0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 1, 6, 2, 6, 3, 1, 3, 2, 3, 4, 3, 5, // B (24 + 16)
+  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 1, 1, 6, 2, 6, 3, 5, 3, 5, // C (20 + 40)
+  0, 0, 0, 6, 1, 0, 2, 0, 1, 6, 2, 6, 3, 1, 3, 5, // D (16 + 60)
+  0, 0, 0, 6, 1, 0, 3, 0, 1, 3, 2, 3, 1, 6, 3, 6,  // E (16 + 76)
+  0, 0, 0, 6, 1, 0, 3, 0, 1, 3, 2, 3,  // F (12 + 92)
+  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 1, 1, 6, 2, 6, 3, 3, 3, 5, 2, 3, 2, 3, // G (24 + 104)
+  0, 0, 0, 6, 1, 3, 2, 3, 3, 0, 3, 6,  // H (12 + 128)
+  0, 0, 0, 6, // I (4 + 140)
+  3, 0, 3, 5, 2, 6, 1, 6, 0, 5, 0, 5,  // J (12 + 144)
+  0, 0, 0, 6, 1, 2, 3, 0, 1, 4, 3, 6,  // K (12 + 156)
+  0, 0, 0, 6, 1, 6, 3, 6, // L (8 + 168)
+  0, 0, 0, 6, 1, 1, 2, 2, 3, 1, 3, 1, 4, 0, 4, 6, // M (16 + 176)
+  0, 0, 0, 6, 0, 0, 4, 6, 4, 0, 4, 6, // N (12 + 192)
+  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 5, 1, 6, 2, 6, // O (16 + 204)
+  0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 3, 1, 3, 2, // P (16 + 220)
+  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 4, 1, 6, 1, 6, 2, 5, 3, 6, // Q (20 + 236)
+  0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 3, 1, 3, 2, 1, 4, 3, 6, // R (20 + 256)
+  3, 1, 3, 1, 2, 0, 1, 0, 0, 1, 0, 2, 1, 3, 2, 3, 3, 4, 3, 5, 2, 6, 1, 6, 0, 5, 0, 5, // S (28 + 276)
+  0, 0, 4, 0, 2, 1, 2, 6, // T (8 + 304)
+  0, 0, 0, 5, 1, 6, 2, 6, 3, 0, 3, 5, // U (12 + 312)
+  2, 6, 2, 4, 2, 4, 0, 0, 2, 4, 4, 0, // V (12 + 324)
+  0, 0, 0, 6, 1, 5, 2, 4, 3, 5, 4, 6, 4, 5, 4, 0, // W (16 + 336)
+  1, 2, 3, 4, 1, 4, 4, 1, 0, 0, 0, 1, 4, 0, 4, 1, 0, 5, 0, 6, 4, 5, 4, 6,  // X (24 + 352)
+  2, 6, 2, 3, 1, 3, 1, 2, 0, 1, 0, 0, 3, 3, 3, 2, 4, 1, 4, 0, // Y (20 + 376)
+  0, 0, 3, 0, 3, 1, 0, 4, 0, 5, 0, 5, 0, 6, 3, 6, // Z (16 + 396)
+  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 5, 1, 6, 2, 6, // 0 (16 + 412)
+  0, 1, 0, 1, 1, 0, 1, 5, 0, 6, 2, 6, // 1 (12 + 428)
+  0, 1, 0, 1, 1, 0, 2, 0, 3, 1, 3, 2, 2, 3, 0, 5, 0, 6, 0, 6, 1, 6, 3, 6, // 2 (24 + 440)
+  0, 1, 0, 1, 1, 0, 2, 0, 3, 1, 3, 2, 1, 3, 2, 3, 3, 4, 3, 5, 1, 6, 2, 6, 0, 5, 0, 5, // 3 (28 + 464)
+  4, 4, 4, 4, 3, 6, 3, 0, 2, 4, 0, 4, 0, 3, 3, 0, // 4 (16 + 492)
+  3, 0, 0, 0, 0, 1, 0, 2, 1, 2, 2, 2, 3, 3, 3, 5, 2, 6, 1, 6, 0, 5, 0, 5, // 5 (24 + 508)
+  3, 1, 3, 1, 2, 0, 1, 0, 0, 1, 0, 5, 1, 6, 2, 6, 3, 5, 3, 4, 2, 3, 1, 3, // 6 (24 + 532)
+  0, 0, 3, 0, 3, 1, 1, 6, 0, 0, 0, 0, // 7 (12 + 556)
+  1, 0, 2, 0, 0, 1, 0, 2, 3, 1, 3, 2, 1, 3, 2, 3, 0, 4, 0, 5, 3, 4, 3, 5, 1, 6, 2, 6, // 8 (28 + 568)
+  0, 1, 0, 2, 1, 0, 2, 0, 3, 1, 3, 5, 1, 3, 2, 3, 1, 6, 2, 6, // 9 (20 + 596)
+  0, 0, 0, 0, // space (4 + 616)
+  0, 0, 0, 0, 2, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 2, 2, 2, 2, 2, 1, 3, 1, 3, 0, 4, 0, 4, 2, 4, 2, 4, 1, 5, 1, 5, 0, 6, 0, 6, 2, 6, 2, 6, // unknown (66 + 616)
 };
-int* ad = (int*) int_table;
 
 Character newCharacter(char symbol, int size, int width, int offset) {
   struct Character Char;
   Char.symbol = symbol;
   Char.sizeOfLines = size;
-  Char.lines = (char**) malloc(sizeof(char*) * Char.sizeOfLines);
-  if (offset != -1) {
-    Char.linesPROGMEM = (int*) int_table + offset;
-  }
+  Char.linesPROGMEM = (int*) int_table + offset;
   Char.display = &display;
   Char.width = width;
   return Char;
 }
 
-//const int EL[16] PROGMEM = {0, 0, 0, 6, 1, 0, 3, 0, 1, 3, 2, 3, 1, 6, 3, 6};
-
 struct Map {
-//  struct Character A = newCharacter('A', 4, 4);
-//  struct Character C = newCharacter('C', 5, 4);
-  struct Character E = newCharacter('E', 4, 4, 0);
-//  struct Character G = newCharacter('G', 6, 4);
-//  struct Character H = newCharacter('H', 3, 4);
-  struct Character I = newCharacter('I', 1, 1, -1);
-  struct Character L = newCharacter('L', 2, 4, -1);
-//  struct Character K = newCharacter('K', 3, 4);
-//  struct Character M = newCharacter('M', 4, 5);
-//  struct Character N = newCharacter('N', 3, 5);
-  struct Character O = newCharacter('O', 4, 4, -1);
-//  struct Character P = newCharacter('P', 4, 4);
-//  struct Character Q = newCharacter('Q', 5, 4);
-//  struct Character R = newCharacter('R', 5, 4);
-//  struct Character S = newCharacter('S', 7, 4);
-  struct Character T = newCharacter('T', 2, 5, -1);
-//  struct Character U = newCharacter('U', 3, 4);
-  struct Character V = newCharacter('V', 3, 5, -1);
-//  struct Character Y = newCharacter('Y', 5, 5);
-//  struct Character Z = newCharacter('Z', 4, 4);
-//  struct Character N3 = newCharacter('3', 7, 4);
-//  struct Character N9 = newCharacter('9', 5, 4);
-//  struct Character space = newCharacter(' ', 0, 1);
-  struct Character unknown = newCharacter('\0', 11, 3, -1);
-//  Character symbols[22] = {A, C, E, G, H, I, K, L, M, N, O, P, Q, R, S, T, V, Y, Z, N3, N9, space};
-  Character symbols[6] = {E, I, L, O, T, V};
-
-  Map() {
-    int intBuf = pgm_read_word(&int_table[0]);
-    Serial.println(intBuf);
-
-    intBuf = pgm_read_word(&ad[1]);
-    Serial.println(intBuf);
-//    A.addNewLine(1, 0, 2, 0);)
-//    A.addNewLine(0, 1, 0, 6);
-//    A.addNewLine(3, 1, 3, 6);
-//    A.addNewLine(1, 4, 2, 4);
-//
-//    C.addNewLine(0, 1, 0, 5);
-//    C.addNewLine(1, 0, 2, 0);
-//    C.addNewLine(3, 1, 3, 1);
-//    C.addNewLine(1, 6, 2, 6);
-//    C.addNewLine(3, 5, 3, 5);
-
-    E.addNewLine(0, 0, 0, 6);
-    E.addNewLine(1, 0, 3, 0);
-    E.addNewLine(1, 3, 2, 3);
-    E.addNewLine(1, 6, 3, 6);
-    Serial.println(pgm_read_word(&E.linesPROGMEM[1]));
-    
-//    G.addNewLine(0, 1, 0, 5);
-//    G.addNewLine(1, 0, 2, 0);
-//    G.addNewLine(3, 1, 3, 1);
-//    G.addNewLine(1, 6, 2, 6);
-//    G.addNewLine(3, 3, 3, 5);
-//    G.addNewLine(2, 3, 2, 3);
-//
-//    H.addNewLine(0, 0, 0, 6);
-//    H.addNewLine(1, 3, 2, 3);
-//    H.addNewLine(3, 0, 3, 6);
-
-    I.addNewLine(0, 0, 0, 6);
-//
-//    K.addNewLine(0, 0, 0, 6);
-//    K.addNewLine(1, 2, 3, 0);
-//    K.addNewLine(1, 4, 3, 6);
-
-    L.addNewLine(0, 0, 0, 6);
-    L.addNewLine(1, 6, 3, 6);
-
-//    M.addNewLine(0, 0, 0, 6);
-//    M.addNewLine(1, 1, 2, 2);
-//    M.addNewLine(3, 1, 3, 1);
-//    M.addNewLine(4, 0, 4, 6);
-//
-//    N.addNewLine(0, 0, 0, 6);
-//    N.addNewLine(0, 0, 4, 6);
-//    N.addNewLine(4, 0, 4, 6);
-
-    O.addNewLine(0, 1, 0, 5);
-    O.addNewLine(1, 0, 2, 0);
-    O.addNewLine(3, 1, 3, 5);
-    O.addNewLine(1, 6, 2, 6);
-
-//    P.addNewLine(0, 0, 0, 6);
-//    P.addNewLine(1, 0, 2, 0);
-//    P.addNewLine(1, 3, 2, 3);
-//    P.addNewLine(3, 1, 3, 2);
-//
-//    Q.addNewLine(0, 1, 0, 5);
-//    Q.addNewLine(1, 0, 2, 0);
-//    Q.addNewLine(3, 1, 3, 4);
-//    Q.addNewLine(1, 6, 1, 6);
-//    Q.addNewLine(2, 5, 3, 6);
-//
-//    R.addNewLine(0, 0, 0, 6);
-//    R.addNewLine(1, 0, 2, 0);
-//    R.addNewLine(1, 3, 2, 3);
-//    R.addNewLine(3, 1, 3, 2);
-//    R.addNewLine(1, 4, 3, 6);
-//
-//    S.addNewLine(3, 1, 3, 1);
-//    S.addNewLine(2, 0, 1, 0);
-//    S.addNewLine(0, 1, 0, 2);
-//    S.addNewLine(1, 3, 2, 3);
-//    S.addNewLine(3, 4, 3, 5);
-//    S.addNewLine(2, 6, 1, 6);
-//    S.addNewLine(0, 5, 0, 5);
-
-    T.addNewLine(0, 0, 4, 0);
-    T.addNewLine(2, 1, 2, 6);
-
-//    U.addNewLine(0, 0, 0, 5);
-//    U.addNewLine(1, 6, 2, 6);
-//    U.addNewLine(3, 0, 3, 5);
-
-    V.addNewLine(2, 6, 2, 4);
-    V.addNewLine(2, 4, 0, 0);
-    V.addNewLine(2, 4, 4, 0);
-
-//    Y.addNewLine(2, 6, 2, 3);
-//    Y.addNewLine(2, 4, 0, 0);
-//    Y.addNewLine(2, 4, 4, 0);
-//    Y.addNewLine(1, 1, 1, 1);
-//    Y.addNewLine(1, 1, 3, 1);
-//
-//    Z.addNewLine(0, 0, 3, 0);
-//    Z.addNewLine(3, 1, 0, 4);
-//    Z.addNewLine(0, 5, 0, 5);
-//    Z.addNewLine(0, 6, 3, 6);
-//
-//    N3.addNewLine(0, 1, 0, 1);
-//    N3.addNewLine(1, 0, 2, 0);
-//    N3.addNewLine(3, 1, 3, 2);
-//    N3.addNewLine(1, 3, 2, 3);
-//    N3.addNewLine(3, 4, 3, 5);
-//    N3.addNewLine(1, 6, 2, 6);
-//    N3.addNewLine(0, 5, 0, 5);
-
-//    N9.addNewLine(0, 1, 0, 2);
-//    N9.addNewLine(1, 0, 2, 0);
-//    N9.addNewLine(3, 1, 3, 5);
-//    N9.addNewLine(1, 3, 2, 3);
-//    N9.addNewLine(1, 6, 2, 6);
-
-    unknown.addNewLine(0, 0, 0, 0);
-    unknown.addNewLine(2, 0, 2, 0);
-    unknown.addNewLine(1, 1, 1, 1);
-    unknown.addNewLine(0, 2, 0, 2);
-    unknown.addNewLine(2, 2, 2, 2);
-    unknown.addNewLine(1, 3, 1, 3);
-    unknown.addNewLine(0, 4, 0, 4);
-    unknown.addNewLine(2, 4, 2, 4);
-    unknown.addNewLine(1, 5, 1, 5);
-    unknown.addNewLine(0, 6, 0, 6);
-    unknown.addNewLine(2, 6, 2, 6);
-  }
+  // X indicates that I have not seen how this character is rendered on the real deal
+  struct Character A = newCharacter('A', 4, 4, 0);
+  struct Character B = newCharacter('B', 6, 4, 16);   // X
+  struct Character C = newCharacter('C', 5, 4, 40);
+  struct Character D = newCharacter('D', 4, 4, 60);   // X
+  struct Character E = newCharacter('E', 4, 4, 76);
+  struct Character F = newCharacter('F', 3, 4, 92);   // X
+  struct Character G = newCharacter('G', 6, 4, 104);
+  struct Character H = newCharacter('H', 3, 4, 128);
+  struct Character I = newCharacter('I', 1, 1, 140);
+  struct Character J = newCharacter('J', 3, 4, 144);  // X
+  struct Character K = newCharacter('K', 3, 4, 156);
+  struct Character L = newCharacter('L', 2, 4, 168);
+  struct Character M = newCharacter('M', 4, 5, 176);
+  struct Character N = newCharacter('N', 3, 5, 192);
+  struct Character O = newCharacter('O', 4, 4, 204);
+  struct Character P = newCharacter('P', 4, 4, 220);
+  struct Character Q = newCharacter('Q', 5, 4, 236);
+  struct Character R = newCharacter('R', 5, 4, 256);
+  struct Character S = newCharacter('S', 7, 4, 276);
+  struct Character T = newCharacter('T', 2, 5, 304);
+  struct Character U = newCharacter('U', 3, 4, 312);
+  struct Character V = newCharacter('V', 3, 5, 324);
+  struct Character W = newCharacter('W', 4, 5, 336);  // X
+  struct Character X = newCharacter('X', 6, 5, 352);  // X
+  struct Character Y = newCharacter('Y', 5, 5, 376);
+  struct Character Z = newCharacter('Z', 4, 4, 396);
+  struct Character N0 = newCharacter('0', 4, 4, 412); // X
+  struct Character N1 = newCharacter('1', 3, 3, 428); // X
+  struct Character N2 = newCharacter('2', 6, 4, 440); // X
+  struct Character N3 = newCharacter('3', 7, 4, 464);
+  struct Character N4 = newCharacter('4', 4, 5, 492); // X
+  struct Character N5 = newCharacter('5', 6, 4, 508); // X
+  struct Character N6 = newCharacter('6', 6, 4, 532); // X
+  struct Character N7 = newCharacter('7', 3, 4, 556); // X
+  struct Character N8 = newCharacter('8', 7, 4, 568); // X
+  struct Character N9 = newCharacter('9', 5, 4, 596);
+  struct Character space = newCharacter(' ', 0, 1, 616);
+  struct Character unknown = newCharacter('\0', 11, 3, 620);
+  Character symbols[38] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, space, unknown};
+  
   Character getCharacter(char character) {
     for (int i = 0; i < sizeof(symbols) / sizeof(Character); i++) {
       struct Character symbol = symbols[i];
@@ -198,7 +113,7 @@ struct Map {
     display.setTextColor(0xF800);
     display.setTextSize(1);
     char buf[26];
-    sprintf(buf, "ERROR\nCHAR %c\nNOT RENDERED", character);
+    sprintf(buf, "ERROR\nCHAR '%c'\nNOT RENDERED", character);
     display.print(buf);
     return unknown;
   }
