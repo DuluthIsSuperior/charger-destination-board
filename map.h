@@ -102,7 +102,7 @@ struct Map {
         return symbol;
       }
     }
-    display.setCursor(0, 15);
+    display.setCursor(0, 16);
     display.setTextColor(0xF800);
     display.setTextSize(1);
     char buf[26];
