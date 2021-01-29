@@ -23,6 +23,7 @@ void setup() {
 bool scrolling = true;
 bool messageChanged = true; // initalized to true to let the message initially show up
 char str[50] = "PERE MARQUETTE";
+int messageWidth = 0;
 int y = 3;
 struct Map char_map;
 long lastMoved = millis();
@@ -32,11 +33,14 @@ void loop() {
     clearBoard();
     x = scrolling ? BOTTOM_RIGHT_CORNER[0] + 3 : 1;
     int tempX = x;
+    messageWidth = 0;
     for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
       if (str[i] != 0) {
         struct Character c = char_map.getCharacter(str[i]);
         c.draw(tempX, y, AMBER);
-        tempX += c.width + 1;
+        int add = c.width + 1;
+        messageWidth += add;
+        tempX += add;
       } else {
         break;
       }
@@ -45,7 +49,11 @@ void loop() {
   }
   if (scrolling && millis() - lastMoved >= 50) {
     clearBoard();
-    x--;
+    if (x < -messageWidth) {
+      x = BOTTOM_RIGHT_CORNER[0] + 3;
+    } else {
+      x--;
+    }
     int tempX = x;
     for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
       if (str[i] != 0) {

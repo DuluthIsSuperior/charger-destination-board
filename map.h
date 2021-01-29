@@ -1,13 +1,6 @@
 #include "character.h"
+#include "display.h"
 #include <avr/pgmspace.h>
-
-#define sclk 13
-#define mosi 11
-#define cs   10
-#define rst  9
-#define dc   8
-
-Adafruit_SSD1331 display = Adafruit_SSD1331(&SPI, cs, dc, rst);
 
 const int *const int_table[] PROGMEM = {  // character (number of points + starting offset)
   1, 0, 2, 0, 0, 1, 0, 6, 3, 1, 3, 6, 1, 4, 2, 4, // A (16 + 0)
