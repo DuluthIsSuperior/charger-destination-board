@@ -2,6 +2,7 @@
 
 class Character {
   public:
+//    Character();
     int* linesPROGMEM = NULL; // use to store the beginning pointer to the first point
     int sizeOfLines;
     char symbol;
