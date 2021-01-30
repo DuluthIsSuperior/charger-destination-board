@@ -2,6 +2,8 @@
 #include "display.h"
 #include <avr/pgmspace.h>
 
+Display display;
+
 const int *const int_table[] PROGMEM = {  // character (number of points + starting offset)
   1, 0, 2, 0, 0, 1, 0, 6, 3, 1, 3, 6, 1, 4, 2, 4, // A (16 + 0)
   0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 1, 6, 2, 6, 3, 1, 3, 2, 3, 4, 3, 5, // B (24 + 16)
@@ -40,7 +42,8 @@ const int *const int_table[] PROGMEM = {  // character (number of points + start
   1, 0, 2, 0, 0, 1, 0, 2, 3, 1, 3, 2, 1, 3, 2, 3, 0, 4, 0, 5, 3, 4, 3, 5, 1, 6, 2, 6, // 8 (28 + 568)
   0, 1, 0, 2, 1, 0, 2, 0, 3, 1, 3, 5, 1, 3, 2, 3, 1, 6, 2, 6, // 9 (20 + 596)
   0, 0, 0, 0, // space (4 + 616)
-  0, 0, 0, 0, 2, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 2, 2, 2, 2, 2, 1, 3, 1, 3, 0, 4, 0, 4, 2, 4, 2, 4, 1, 5, 1, 5, 0, 6, 0, 6, 2, 6, 2, 6, // unknown (66 + 616)
+  0, 0, 0, 0, 2, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 2, 2, 2, 2, 2, 1, 3, 1, 3, 0, 4, 0, 4, 2, 4, 2, 4, 1, 5, 1, 5, 0, 6, 0, 6, 2, 6, 2, 6, // unknown (44 + 620)
+  0, 5, 0, 6, 1, 5, 1, 6,  // . (8 + 664)
 };
 
 Character newCharacter(char symbol, int size, int width, int offset) {
@@ -93,7 +96,8 @@ struct Map {
   struct Character N9 = newCharacter('9', 5, 4, 596);
   struct Character space = newCharacter(' ', 0, 1, 616);
   struct Character unknown = newCharacter('\0', 11, 3, 620);
-  Character symbols[38] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, space, unknown};
+  struct Character dot = newCharacter('.', 2, 2, 664);
+  Character symbols[39] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, space, unknown, dot};
   
   Character getCharacter(char character) {
     for (int i = 0; i < sizeof(symbols) / sizeof(Character); i++) {
@@ -107,7 +111,7 @@ struct Map {
     display.setTextSize(1);
     char buf[26];
     sprintf(buf, "ERROR\nCHAR '%c'\nNOT RENDERED", character);
-    display.print(buf);
+    display.printText(buf);
     return unknown;
   }
 };

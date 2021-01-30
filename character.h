@@ -1,16 +1,13 @@
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1331.h>
-#include <SPI.h>
+#include "display.h"
 
 class Character {
   public:
     int* linesPROGMEM = NULL; // use to store the beginning pointer to the first point
     int sizeOfLines;
     char symbol;
-    Adafruit_SSD1331* display;
+    Display* display;
     int width;
     draw(int x, int y, int color);
-    addNewLine(char startX, char startY, char endX, char endY);
     char linesInserted = 0;
 };
 

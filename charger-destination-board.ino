@@ -1,33 +1,22 @@
 #include "map.h"
+#include "display.h"
 
-const int TOP_LEFT_CORNER[] = {0, 0};
-const int BOTTOM_RIGHT_CORNER[] = {49, 14};
-  
-const int AMBER = 0xFFB400;
-const int BLACK = 0x000000;
-
+const char voltage[] PROGMEM = "";
 const char chicago[] PROGMEM = "CHICAGO";
 const char pere_marquette[] PROGMEM = "PERE MARQUETTE";
 const char blue_water[] PROGMEM = "BLUE WATER";
 
-const char *const destinations[] PROGMEM = {chicago, pere_marquette, blue_water};
+const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, blue_water};
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
-void clearBoard() {
-  display.fillRect(TOP_LEFT_CORNER[0], TOP_LEFT_CORNER[1], BOTTOM_RIGHT_CORNER[0], BOTTOM_RIGHT_CORNER[1], BLACK); // start x, start y, end x, end y  
-}
-
-int x = 1;
+int x = 2;
 void setup() {
   Serial.begin(9600);
   pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
   
   display.begin();
-  display.fillScreen(0x0);
-  display.drawRect(TOP_LEFT_CORNER[0], TOP_LEFT_CORNER[1], BOTTOM_RIGHT_CORNER[0] + 1, BOTTOM_RIGHT_CORNER[1] + 1, AMBER);
-  clearBoard();
-
-  Serial.println(sizeof(destinations) / sizeof(char*));
+  display.clearDestinationBoard();
 }
 
 bool scrolling = true;
@@ -41,7 +30,7 @@ long lastMoved = millis();
 int messageId = 0;
 
 void printMessage(bool findWidth) {
-  clearBoard();
+  display.clearDestinationBoard();
   int tempX = x;
   if (findWidth) {
     messageWidth = 0;
@@ -60,15 +49,20 @@ void printMessage(bool findWidth) {
       break;
     }
   }
+
+  scrolling = messageWidth > 47;
 }
 
 void loop() {
   if (messageChanged) {
-    x = scrolling ? BOTTOM_RIGHT_CORNER[0] + 3 : 1;
-    memset(str, 0, sizeof(str));  // zeros out the string
-    strncpy_P(str, pgm_read_word(&destinations[messageId]), 50);
-    printMessage(true);
+    if (messageId != 0) {
+      x = 2;
+      memset(str, 0, sizeof(str));  // zeros out the string
+      strncpy_P(str, pgm_read_word(&destinations[messageId]), 50);
+      printMessage(true);
+    }
     messageChanged = false;
+    Serial.println(messageId);
   }
   if (scrolling && millis() - lastMoved >= 50) {
     if (x < -messageWidth) {
@@ -79,10 +73,20 @@ void loop() {
     printMessage(false);
     lastMoved = millis();
   }
-  if (digitalRead(A0) == HIGH) {
+  if (messageId == 0) {
+    int value = analogRead(A1);
+    float R1 = 47000.00;
+    float R2 = 22000.00;
+    float voltage = value * (5.0 / 1024) * ((R1 + R2) / R2);
+    memset(str, 0, 8);  // zeros out the string
+    char buffer[8];
+    sprintf(str, "%s%d.%02dV", (voltage < 10.00 ? "0" : ""), (int) voltage, (int) (voltage * 100.0) % 100); 
+    printMessage(false);
+  }
+  if (digitalRead(A0) == HIGH) {  // if using a button to test this, no code accounts for the button bounce problem
     if (!old_A0) {
       messageId++;
-      if (messageId % numberOfMessages == 0) {  // loops list back to the beginning if the last message is reached
+      if (messageId % numberOfMessages == 0) {
         messageId = 0;
       }
       messageChanged = true;
