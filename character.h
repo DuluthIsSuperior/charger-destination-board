@@ -1,6 +1,6 @@
 #include "display.h"
 
-const int *const int_table[] PROGMEM = {  // character (number of points + starting offset)
+const int *const characterData[] PROGMEM = {  // character (number of points + starting offset)
   1, 0, 2, 0, 0, 1, 0, 6, 3, 1, 3, 6, 1, 4, 2, 4, // A (16 + 0)
   0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 1, 6, 2, 6, 3, 1, 3, 2, 3, 4, 3, 5, // B (24 + 16)
   0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 1, 1, 6, 2, 6, 3, 5, 3, 5, // C (20 + 40)
@@ -44,7 +44,7 @@ const int *const int_table[] PROGMEM = {  // character (number of points + start
 
 class Character {
   public:
-    Character(char s, int si, int w, int* l, Display* d);
+    Character(char s, int si, int w, int charBeginningOffset, Display* d);
     int* linesPROGMEM = NULL; // use to store the beginning pointer to the first point
     int sizeOfLines;
     char symbol;
@@ -54,10 +54,10 @@ class Character {
     char linesInserted = 0;
 };
 
-Character::Character(char s, int si, int w, int* l, Display* d) {
+Character::Character(char s, int si, int w, int charBeginningOffset, Display* d) {
   symbol = s;
   sizeOfLines = si;
-  linesPROGMEM = l;
+  linesPROGMEM = (int*) characterData + charBeginningOffset;
   display = d;
   width = w;
 }
