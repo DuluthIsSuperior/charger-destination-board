@@ -4,101 +4,52 @@
 
 Display display;
 
-const int *const int_table[] PROGMEM = {  // character (number of points + starting offset)
-  1, 0, 2, 0, 0, 1, 0, 6, 3, 1, 3, 6, 1, 4, 2, 4, // A (16 + 0)
-  0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 1, 6, 2, 6, 3, 1, 3, 2, 3, 4, 3, 5, // B (24 + 16)
-  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 1, 1, 6, 2, 6, 3, 5, 3, 5, // C (20 + 40)
-  0, 0, 0, 6, 1, 0, 2, 0, 1, 6, 2, 6, 3, 1, 3, 5, // D (16 + 60)
-  0, 0, 0, 6, 1, 0, 3, 0, 1, 3, 2, 3, 1, 6, 3, 6,  // E (16 + 76)
-  0, 0, 0, 6, 1, 0, 3, 0, 1, 3, 2, 3,  // F (12 + 92)
-  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 1, 1, 6, 2, 6, 3, 3, 3, 5, 2, 3, 2, 3, // G (24 + 104)
-  0, 0, 0, 6, 1, 3, 2, 3, 3, 0, 3, 6,  // H (12 + 128)
-  0, 0, 0, 6, // I (4 + 140)
-  3, 0, 3, 5, 2, 6, 1, 6, 0, 5, 0, 5,  // J (12 + 144)
-  0, 0, 0, 6, 1, 2, 3, 0, 1, 4, 3, 6,  // K (12 + 156)
-  0, 0, 0, 6, 1, 6, 3, 6, // L (8 + 168)
-  0, 0, 0, 6, 1, 1, 2, 2, 3, 1, 3, 1, 4, 0, 4, 6, // M (16 + 176)
-  0, 0, 0, 6, 0, 0, 4, 6, 4, 0, 4, 6, // N (12 + 192)
-  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 5, 1, 6, 2, 6, // O (16 + 204)
-  0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 3, 1, 3, 2, // P (16 + 220)
-  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 4, 1, 6, 1, 6, 2, 5, 3, 6, // Q (20 + 236)
-  0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 3, 1, 3, 2, 1, 4, 3, 6, // R (20 + 256)
-  3, 1, 3, 1, 2, 0, 1, 0, 0, 1, 0, 2, 1, 3, 2, 3, 3, 4, 3, 5, 2, 6, 1, 6, 0, 5, 0, 5, // S (28 + 276)
-  0, 0, 4, 0, 2, 1, 2, 6, // T (8 + 304)
-  0, 0, 0, 5, 1, 6, 2, 6, 3, 0, 3, 5, // U (12 + 312)
-  2, 6, 2, 4, 2, 4, 0, 0, 2, 4, 4, 0, // V (12 + 324)
-  0, 0, 0, 6, 1, 5, 2, 4, 3, 5, 4, 6, 4, 5, 4, 0, // W (16 + 336)
-  1, 2, 3, 4, 1, 4, 4, 1, 0, 0, 0, 1, 4, 0, 4, 1, 0, 5, 0, 6, 4, 5, 4, 6,  // X (24 + 352)
-  2, 6, 2, 3, 1, 3, 1, 2, 0, 1, 0, 0, 3, 3, 3, 2, 4, 1, 4, 0, // Y (20 + 376)
-  0, 0, 3, 0, 3, 1, 0, 4, 0, 5, 0, 5, 0, 6, 3, 6, // Z (16 + 396)
-  0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 5, 1, 6, 2, 6, // 0 (16 + 412)
-  0, 1, 0, 1, 1, 0, 1, 5, 0, 6, 2, 6, // 1 (12 + 428)
-  0, 1, 0, 1, 1, 0, 2, 0, 3, 1, 3, 2, 2, 3, 0, 5, 0, 6, 0, 6, 1, 6, 3, 6, // 2 (24 + 440)
-  0, 1, 0, 1, 1, 0, 2, 0, 3, 1, 3, 2, 1, 3, 2, 3, 3, 4, 3, 5, 1, 6, 2, 6, 0, 5, 0, 5, // 3 (28 + 464)
-  4, 4, 4, 4, 3, 6, 3, 0, 2, 4, 0, 4, 0, 3, 3, 0, // 4 (16 + 492)
-  3, 0, 0, 0, 0, 1, 0, 2, 1, 2, 2, 2, 3, 3, 3, 5, 2, 6, 1, 6, 0, 5, 0, 5, // 5 (24 + 508)
-  3, 1, 3, 1, 2, 0, 1, 0, 0, 1, 0, 5, 1, 6, 2, 6, 3, 5, 3, 4, 2, 3, 1, 3, // 6 (24 + 532)
-  0, 0, 3, 0, 3, 1, 1, 6, 0, 0, 0, 0, // 7 (12 + 556)
-  1, 0, 2, 0, 0, 1, 0, 2, 3, 1, 3, 2, 1, 3, 2, 3, 0, 4, 0, 5, 3, 4, 3, 5, 1, 6, 2, 6, // 8 (28 + 568)
-  0, 1, 0, 2, 1, 0, 2, 0, 3, 1, 3, 5, 1, 3, 2, 3, 1, 6, 2, 6, // 9 (20 + 596)
-  0, 0, 0, 0, // space (4 + 616)
-  0, 0, 0, 0, 2, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 2, 2, 2, 2, 2, 1, 3, 1, 3, 0, 4, 0, 4, 2, 4, 2, 4, 1, 5, 1, 5, 0, 6, 0, 6, 2, 6, 2, 6, // unknown (44 + 620)
-  0, 5, 0, 6, 1, 5, 1, 6,  // . (8 + 664)
-};
-
-Character newCharacter(char symbol, int size, int width, int offset) {
-  struct Character Char;
-  Char.symbol = symbol;
-  Char.sizeOfLines = size;
-  Char.linesPROGMEM = (int*) int_table + offset;
-  Char.display = &display;
-  Char.width = width;
+Character newCharacter(char symbol, int size, int width, int charBeginningOffset) {
+  Character Char {symbol, size, width, (int*) int_table + charBeginningOffset, &display};
   return Char;
 }
 
 struct Map {
   // X indicates that I have not seen how this character is rendered on the real unit
-//  const struct Character AA = newCharacter('A', 4, 4, 0);
-//  const struct Character *const AAA[1] = {AA};
-  const struct Character A PROGMEM = newCharacter('A', 4, 4, 0);
-  const struct Character B = newCharacter('B', 6, 4, 16);   // X
-  const struct Character C = newCharacter('C', 5, 4, 40);
-  const struct Character D = newCharacter('D', 4, 4, 60);   // X
-  const struct Character E = newCharacter('E', 4, 4, 76);
-  const struct Character F = newCharacter('F', 3, 4, 92);   // X
-  const struct Character G = newCharacter('G', 6, 4, 104);
-  const struct Character H = newCharacter('H', 3, 4, 128);
-  const struct Character I = newCharacter('I', 1, 1, 140);
-  const struct Character J = newCharacter('J', 3, 4, 144);  // X
-  const struct Character K = newCharacter('K', 3, 4, 156);
-  const struct Character L = newCharacter('L', 2, 4, 168);
-  const struct Character M = newCharacter('M', 4, 5, 176);
-  const struct Character N = newCharacter('N', 3, 5, 192);
-  const struct Character O = newCharacter('O', 4, 4, 204);
-  const struct Character P = newCharacter('P', 4, 4, 220);
-  const struct Character Q = newCharacter('Q', 5, 4, 236);
-  const struct Character R = newCharacter('R', 5, 4, 256);
-  const struct Character S = newCharacter('S', 7, 4, 276);
-  const struct Character T = newCharacter('T', 2, 5, 304);
-  const struct Character U = newCharacter('U', 3, 4, 312);
-  const struct Character V = newCharacter('V', 3, 5, 324);
-  const struct Character W = newCharacter('W', 4, 5, 336);  // X
-  const struct Character X = newCharacter('X', 6, 5, 352);  // X
-  const struct Character Y = newCharacter('Y', 5, 5, 376);
-  const struct Character Z = newCharacter('Z', 4, 4, 396);
-  const struct Character N0 = newCharacter('0', 4, 4, 412); // X
-  const struct Character N1 = newCharacter('1', 3, 3, 428); // X
-  const struct Character N2 = newCharacter('2', 6, 4, 440); // X
-  const struct Character N3 = newCharacter('3', 7, 4, 464);
-  const struct Character N4 = newCharacter('4', 4, 5, 492); // X
-  const struct Character N5 = newCharacter('5', 6, 4, 508); // X
-  const struct Character N6 = newCharacter('6', 6, 4, 532); // X
-  const struct Character N7 = newCharacter('7', 3, 4, 556); // X
-  const struct Character N8 = newCharacter('8', 7, 4, 568); // X
-  const struct Character N9 = newCharacter('9', 5, 4, 596);
-  const struct Character space = newCharacter(' ', 0, 1, 616);
-  const struct Character unknown = newCharacter('\0', 11, 3, 620);
-  const struct Character dot = newCharacter('.', 2, 2, 664);
+  const Character A = newCharacter('A', 4, 4, 0);
+  const Character B = newCharacter('B', 6, 4, 16);   // X
+  const Character C = newCharacter('C', 5, 4, 40);
+  const Character D = newCharacter('D', 4, 4, 60);   // X
+  const Character E = newCharacter('E', 4, 4, 76);
+  const Character F = newCharacter('F', 3, 4, 92);   // X
+  const Character G = newCharacter('G', 6, 4, 104);
+  const Character H = newCharacter('H', 3, 4, 128);
+  const Character I = newCharacter('I', 1, 1, 140);
+  const Character J = newCharacter('J', 3, 4, 144);  // X
+  const Character K = newCharacter('K', 3, 4, 156);
+  const Character L = newCharacter('L', 2, 4, 168);
+  const Character M = newCharacter('M', 4, 5, 176);
+  const Character N = newCharacter('N', 3, 5, 192);
+  const Character O = newCharacter('O', 4, 4, 204);
+  const Character P = newCharacter('P', 4, 4, 220);
+  const Character Q = newCharacter('Q', 5, 4, 236);
+  const Character R = newCharacter('R', 5, 4, 256);
+  const Character S = newCharacter('S', 7, 4, 276);
+  const Character T = newCharacter('T', 2, 5, 304);
+  const Character U = newCharacter('U', 3, 4, 312);
+  const Character V = newCharacter('V', 3, 5, 324);
+  const Character W = newCharacter('W', 4, 5, 336);  // X
+  const Character X = newCharacter('X', 6, 5, 352);  // X
+  const Character Y = newCharacter('Y', 5, 5, 376);
+  const Character Z = newCharacter('Z', 4, 4, 396);
+  const Character N0 = newCharacter('0', 4, 4, 412); // X
+  const Character N1 = newCharacter('1', 3, 3, 428); // X
+  const Character N2 = newCharacter('2', 6, 4, 440); // X
+  const Character N3 = newCharacter('3', 7, 4, 464);
+  const Character N4 = newCharacter('4', 4, 5, 492); // X
+  const Character N5 = newCharacter('5', 6, 4, 508); // X
+  const Character N6 = newCharacter('6', 6, 4, 532); // X
+  const Character N7 = newCharacter('7', 3, 4, 556); // X
+  const Character N8 = newCharacter('8', 7, 4, 568); // X
+  const Character N9 = newCharacter('9', 5, 4, 596);
+  const Character space = newCharacter(' ', 0, 1, 616);
+  const Character unknown = newCharacter('\0', 11, 3, 620);
+  const Character dot = newCharacter('.', 2, 2, 664);
   const Character symbols[39] = {A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, space, unknown, dot};
   
   Character getCharacter(char character) {
