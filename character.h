@@ -1,6 +1,6 @@
 #include "display.h"
 
-const int *const characterData[] PROGMEM = {  // character (number of points + starting offset)
+const int *const lineData[] PROGMEM = {  // character (number of points + starting offset)
   1, 0, 2, 0, 0, 1, 0, 6, 3, 1, 3, 6, 1, 4, 2, 4, // A (16 + 0)
   0, 0, 0, 6, 1, 0, 2, 0, 1, 3, 2, 3, 1, 6, 2, 6, 3, 1, 3, 2, 3, 4, 3, 5, // B (24 + 16)
   0, 1, 0, 5, 1, 0, 2, 0, 3, 1, 3, 1, 1, 6, 2, 6, 3, 5, 3, 5, // C (20 + 40)
@@ -44,22 +44,30 @@ const int *const characterData[] PROGMEM = {  // character (number of points + s
 
 class Character {
   public:
-    Character(char s, int si, int w, int charBeginningOffset, Display* d);
+    Character(char s, int si, int w, int charBeginningOffset);
     int* linesPROGMEM = NULL; // use to store the beginning pointer to the first point
     int sizeOfLines;
     char symbol;
-    Display* display;
     int width;
     draw(int x, int y, int color);
     char linesInserted = 0;
+    static Display* display;
+    setDisplay(Display* d);
 };
 
-Character::Character(char s, int si, int w, int charBeginningOffset, Display* d) {
+Display* Character::display = NULL;
+
+Character::Character(char s, int si, int w, int charBeginningOffset) {
   symbol = s;
   sizeOfLines = si;
-  linesPROGMEM = (int*) characterData + charBeginningOffset;
-  display = d;
+  linesPROGMEM = (int*) lineData + charBeginningOffset;
   width = w;
+}
+
+Character::setDisplay(Display* d) {
+  if (display == NULL) {
+    display = d;
+  }
 }
 
 Character::draw(int x, int y, int color) {

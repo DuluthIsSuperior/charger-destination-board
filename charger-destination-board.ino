@@ -10,14 +10,6 @@ const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, bl
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
 int x = 2;
-void setup() {
-  Serial.begin(9600);
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  
-  display.begin();
-  display.clearDestinationBoard();
-}
 
 bool scrolling = true;
 bool messageChanged = true; // initalized to true to let the message initially show up
@@ -27,7 +19,16 @@ int messageWidth = 0;
 int y = 3;
 struct Map char_map;
 long lastMoved = millis();
-int messageId = 0;
+int messageId = 3;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  
+  display.begin();
+  display.clearDestinationBoard();
+}
 
 void printMessage(bool findWidth) {
   display.clearDestinationBoard();
@@ -39,6 +40,8 @@ void printMessage(bool findWidth) {
   for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
     if (str[i] != 0) {
       struct Character c = char_map.getCharacter(str[i]);
+      char* a = char_map.getCharacterData(str[i]);
+      delete a;
       c.draw(tempX, y, AMBER);
       int add = c.width + 1;
       tempX += add;
@@ -80,8 +83,9 @@ void loop() {
     float voltage = value * (5.0 / 1024) * ((R1 + R2) / R2);
     memset(str, 0, 8);  // zeros out the string
     char buffer[8];
-    sprintf(str, "%s%d.%02dV", (voltage < 10.00 ? "0" : ""), (int) voltage, (int) (voltage * 100.0) % 100); 
-    printMessage(false);
+    sprintf(str, "%s%d.%02dV", (voltage < 10.00 ? "0" : ""), (int) voltage, (int) (voltage * 100.0) % 100);
+    x = 2;
+    printMessage(true);
   }
   if (digitalRead(A0) == HIGH) {  // if using a button to test this, no code accounts for the button bounce problem
     if (!old_A0) {
