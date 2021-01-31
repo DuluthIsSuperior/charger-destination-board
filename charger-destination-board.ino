@@ -1,5 +1,7 @@
 #include "map.h"
 #include "display.h"
+#include <stdarg.h>
+#include <math.h>
 
 const char voltage[] PROGMEM = "";
 const char chicago[] PROGMEM = "CHICAGO";
@@ -30,6 +32,25 @@ void setup() {
   display.clearDestinationBoard();
 }
 
+int charsToIntValue(int argc, ...) {
+  va_list argp;
+  va_start(argp, argc);
+  int multiplier = (int) pow(10, argc - 1); // truncation error
+  if (argc == 1) {
+    multiplier = 1;
+  } else if (multiplier % 10 != 0) {
+    multiplier += 10 - multiplier % 10;
+  }
+  int result = 0;
+  for (int i = 0; i < argc; i++) {
+    char c = va_arg(argp, int);
+    result += (c - 48) * multiplier;
+    multiplier /= 10;
+  }
+  
+  return result;
+}
+
 void printMessage(bool findWidth) {
   display.clearDestinationBoard();
   int tempX = x;
@@ -41,14 +62,10 @@ void printMessage(bool findWidth) {
     if (str[i] != 0) {
       struct Character c = char_map.getCharacter(str[i]);
       int index = char_map.getCharacterData(str[i]);
-      Serial.print((char) pgm_read_word(&characterData[index]));
-      Serial.print((char) pgm_read_word(&characterData[index + 1]));
-      Serial.print((char) pgm_read_word(&characterData[index + 2]));
-      Serial.print((char) pgm_read_word(&characterData[index + 3]));
-      Serial.print((char) pgm_read_word(&characterData[index + 4]));
-      Serial.print((char) pgm_read_word(&characterData[index + 5]));
-      Serial.print((char) pgm_read_word(&characterData[index + 6]));
-      Serial.println((char) pgm_read_word(&characterData[index + 7]));
+      char symbol = (char) pgm_read_word(&characterData[index]);
+      int numberOfLines = charsToIntValue(2, pgm_read_word(&characterData[index + 1]), pgm_read_word(&characterData[index + 2]));
+      int width = charsToIntValue(1, pgm_read_word(&characterData[index + 3]));
+      int offset = charsToIntValue(4, pgm_read_word(&characterData[index + 4]), pgm_read_word(&characterData[index + 5]), pgm_read_word(&characterData[index + 6]), pgm_read_word(&characterData[index + 7]));
       c.draw(tempX, y, AMBER);
       int add = c.width + 1;
       tempX += add;
