@@ -60,14 +60,16 @@ void printMessage(bool findWidth) {
   
   for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
     if (str[i] != 0) {
-      struct Character c = char_map.getCharacter(str[i]);
       int index = char_map.getCharacterData(str[i]);
-      char symbol = (char) pgm_read_word(&characterData[index]);
       int numberOfLines = charsToIntValue(2, pgm_read_word(&characterData[index + 1]), pgm_read_word(&characterData[index + 2]));
       int width = charsToIntValue(1, pgm_read_word(&characterData[index + 3]));
       int offset = charsToIntValue(4, pgm_read_word(&characterData[index + 4]), pgm_read_word(&characterData[index + 5]), pgm_read_word(&characterData[index + 6]), pgm_read_word(&characterData[index + 7]));
-      c.draw(tempX, y, AMBER);
-      int add = c.width + 1;
+      for (int i = 0; i < numberOfLines; i++) {
+        int line[4] = {pgm_read_word(&lineData[offset + 0]), pgm_read_word(&lineData[offset + 1]), pgm_read_word(&lineData[offset + 2]), pgm_read_word(&lineData[offset + 3])};
+        display.drawLine(line[0] + tempX, line[1] + y, line[2] + tempX, line[3] + y, AMBER);
+        offset += 4;
+      }
+      int add = width + 1;
       tempX += add;
       if (findWidth) {
         messageWidth += add;
