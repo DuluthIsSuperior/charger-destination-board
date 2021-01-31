@@ -41,7 +41,6 @@ Adafruit_SSD1331 Display::display = Adafruit_SSD1331(&SPI, cs, dc, rst);
 bool Display::running = false;
 
 Display::begin() {
-  Serial.println(sizeof(int));;
   if (!running) {
     display.begin();
     fillScreen(0x0);

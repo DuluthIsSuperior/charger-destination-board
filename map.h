@@ -6,46 +6,47 @@ Display display;
 
 // String format: Symbol (first character), number of lines (next 2 digits), width (next digit), starting line data offset (last 4 digits)
 const int LENGTH_OF_CHAR_DATA = 8;
-const char AA[]  PROGMEM = "A0440000";
-const char BB[]  PROGMEM = "B0640016";   // X
-const char CC[]  PROGMEM = "C0540040";
-const char DD[]  PROGMEM = "D0440060";   // X
-const char EE[]  PROGMEM = "E0440076";
-const char FF[]  PROGMEM = "F0340092";   // X
-const char GG[]  PROGMEM = "G0640104";
-const char HH[]  PROGMEM = "H0340128";
-const char II[]  PROGMEM = "I0110140";
-const char JJ[]  PROGMEM = "J0340144";  // X
-const char KK[]  PROGMEM = "K0340156";
-const char LL[]  PROGMEM = "L0240168";
-const char MM[]  PROGMEM = "M0450176";
-const char NN[]  PROGMEM = "N0350192";
-const char OO[]  PROGMEM = "O0440204";
-const char PP[]  PROGMEM = "P0440220";
-const char QQ[]  PROGMEM = "Q0540236";
-const char RR[]  PROGMEM = "R0540256";
-const char ss[]  PROGMEM = "S0740276";
-const char TT[]  PROGMEM = "T0250304";
-const char UU[]  PROGMEM = "U0340312";
-const char VV[]  PROGMEM = "V0350324";
-const char WW[]  PROGMEM = "W0450336";  // X
-const char XX[]  PROGMEM = "X0650352";  // X
-const char YY[]  PROGMEM = "Y0550376";
-const char ZZ[]  PROGMEM = "Z0440396";
-const char N00[] PROGMEM = "00440412"; // X
-const char N11[] PROGMEM = "10330428"; // X
-const char N22[] PROGMEM = "20640440"; // X
-const char N33[] PROGMEM = "30740464";
-const char N44[] PROGMEM = "40450492"; // X
-const char N55[] PROGMEM = "50640508"; // X
-const char N66[] PROGMEM = "60640532"; // X
-const char N77[] PROGMEM = "70340556"; // X
-const char N88[] PROGMEM = "80740568"; // X
-const char N99[] PROGMEM = "90540596";
-const char SPACE[] PROGMEM = " 0010616";
-const char UNKNOWN[] PROGMEM = "\01130620";
-const char DOT[] PROGMEM = ".0220664";
-const char *const characterData[39] PROGMEM = {AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL, MM, NN, OO, PP, QQ, RR, ss, TT, UU, VV, WW, XX, YY, ZZ, N00, N11, N22, N33, N44, N55, N66, N77, N88, N99, SPACE, UNKNOWN, DOT};
+const char *const characterData[320] PROGMEM = {
+'A','0','4','4','0','0','0','0',
+'B','0','6','4','0','0','1','6',   // X
+'C','0','5','4','0','0','4','0',
+'D','0','4','4','0','0','6','0',   // X
+'E','0','4','4','0','0','7','6',
+'F','0','3','4','0','0','9','2',   // X
+'G','0','6','4','0','1','0','4',
+'H','0','3','4','0','1','2','8',
+'I','0','1','1','0','1','4','0',
+'J','0','3','4','0','1','4','4',  // X
+'K','0','3','4','0','1','5','6',
+'L','0','2','4','0','1','6','8',
+'M','0','4','5','0','1','7','6',
+'N','0','3','5','0','1','9','2',
+'O','0','4','4','0','2','0','4',
+'P','0','4','4','0','2','2','0',
+'Q','0','5','4','0','2','3','6',
+'R','0','5','4','0','2','5','6',
+'S','0','7','4','0','2','7','6',
+'T','0','2','5','0','3','0','4',
+'U','0','3','4','0','3','1','2',
+'V','0','3','5','0','3','2','4',
+'W','0','4','5','0','3','3','6',  // X
+'X','0','6','5','0','3','5','2',  // X
+'Y','0','5','5','0','3','7','6',
+'Z','0','4','4','0','3','9','6',
+'0','0','4','4','0','4','1','2', // X
+'1','0','3','3','0','4','2','8', // X
+'2','0','6','4','0','4','4','0', // X
+'3','0','7','4','0','4','6','4',
+'4','0','4','5','0','4','9','2', // X
+'5','0','6','4','0','5','0','8', // X
+'6','0','6','4','0','5','3','2', // X
+'7','0','3','4','0','5','5','6', // X
+'8','0','7','4','0','5','6','8', // X
+'9','0','5','4','0','5','9','6',
+' ','0','0','1','0','6','1','6',
+'\0','1','1','3','0','6','2','0',
+'.','0','2','2','0','6','6','4'
+};
 
 struct Map {
   // X indicates that I have not seen how this character is rendered on the real unit
@@ -94,24 +95,32 @@ struct Map {
     A.setDisplay(&display);
   }
 
-  char* getCharacterData(char character) {
-    char buffer[LENGTH_OF_CHAR_DATA + 1];
-    buffer[LENGTH_OF_CHAR_DATA] = 0;
-    memset(buffer, 0, sizeof(buffer));  // zeros out the string
-    char symbol[2];
-    symbol[1] = 0;
-    for (int i = 0; i < sizeof(characterData) / sizeof(char*); i++) {
-      strncpy_P(symbol, pgm_read_word(&characterData[i]), 1);
-      if (symbol[i] == character) {
-        strncpy_P(buffer, pgm_read_word(&characterData[i]), 9);
-        delete symbol;
-        return buffer;
+  int getCharacterData(char character) {
+    //sizeof(characterData) / sizeof(char*) / 8
+    for (int i = 0; i < sizeof(characterData) / sizeof(char*); i += 8) {
+      if ((char) pgm_read_word(&characterData[i]) == character) {
+        return i;
       }
     }
-    delete symbol;
-    strncpy(buffer, pgm_read_word(&UNKNOWN), 9);
-    return buffer;
+    return 304;
   }
+
+//  char* getCharacterData(char character) {
+//    char buffer[LENGTH_OF_CHAR_DATA + 1];
+//    buffer[LENGTH_OF_CHAR_DATA] = 0;
+//    memset(buffer, 0, sizeof(buffer));  // zeros out the string
+//    char symbol[2];
+//    symbol[1] = 0;
+//    for (int i = 0; i < sizeof(characterData) / sizeof(char*); i++) {
+//      strncpy_P(symbol, pgm_read_word(&characterData[i]), 1);
+//      if (symbol[i] == character) {
+//        strncpy_P(buffer, pgm_read_word(&characterData[i]), 9);
+//        return buffer;
+//      }
+//    }
+//    strncpy(buffer, pgm_read_word(&UNKNOWN), 9);
+//    return buffer;
+//  }
   
   Character getCharacter(char character) {
     for (int i = 0; i < sizeof(symbols) / sizeof(Character); i++) {

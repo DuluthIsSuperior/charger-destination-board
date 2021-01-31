@@ -19,7 +19,7 @@ int messageWidth = 0;
 int y = 3;
 struct Map char_map;
 long lastMoved = millis();
-int messageId = 3;
+int messageId = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -40,8 +40,15 @@ void printMessage(bool findWidth) {
   for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
     if (str[i] != 0) {
       struct Character c = char_map.getCharacter(str[i]);
-      char* a = char_map.getCharacterData(str[i]);
-      delete a;
+      int index = char_map.getCharacterData(str[i]);
+      Serial.print((char) pgm_read_word(&characterData[index]));
+      Serial.print((char) pgm_read_word(&characterData[index + 1]));
+      Serial.print((char) pgm_read_word(&characterData[index + 2]));
+      Serial.print((char) pgm_read_word(&characterData[index + 3]));
+      Serial.print((char) pgm_read_word(&characterData[index + 4]));
+      Serial.print((char) pgm_read_word(&characterData[index + 5]));
+      Serial.print((char) pgm_read_word(&characterData[index + 6]));
+      Serial.println((char) pgm_read_word(&characterData[index + 7]));
       c.draw(tempX, y, AMBER);
       int add = c.width + 1;
       tempX += add;
