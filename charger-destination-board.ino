@@ -6,7 +6,7 @@
 const char voltage[] PROGMEM = "";
 const char chicago[] PROGMEM = "CHICAGO";
 const char pere_marquette[] PROGMEM = "PERE MARQUETTE";
-const char blue_water[] PROGMEM = "BLUE WATER";
+const char blue_water[] PROGMEM = "KMNQRVWXZ24";
 
 const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, blue_water};
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
@@ -21,7 +21,7 @@ int messageWidth = 0;
 int y = 3;
 struct Map char_map;
 long lastMoved = millis();
-int messageId = 0;
+int messageId = 3;
 
 void setup() {
   Serial.begin(9600);
@@ -29,7 +29,7 @@ void setup() {
   pinMode(A1, INPUT);
   
   display.begin();
-  display.clearDestinationBoard();
+//  display.clearDestinationBoard();
 }
 
 int charsToIntValue(int argc, ...) {
@@ -52,7 +52,7 @@ int charsToIntValue(int argc, ...) {
 }
 
 void printMessage(bool findWidth) {
-  display.clearDestinationBoard();
+//  display.clearDestinationBoard();
   int tempX = x;
   if (findWidth) {
     messageWidth = 0;
@@ -78,6 +78,7 @@ void printMessage(bool findWidth) {
       break;
     }
   }
+  display.drawImage();
 
   scrolling = messageWidth > 47;
 }
