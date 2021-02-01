@@ -5,37 +5,35 @@
 
 const char voltage[] PROGMEM = "";
 const char chicago[] PROGMEM = "CHICAGO";
-const char pere_marquette[] PROGMEM = "PERE MARQUETTE";
-const char blue_water[] PROGMEM = "KMNQRVWXZ24";
+const char pere_marquette[] PROGMEM = "370 PERE MARQUETTE";
+const char blue_water[] PROGMEM = "BLUE WATER";
 
 const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, blue_water};
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
-int x = 2;
-
-bool scrolling = true;
+bool scrolling = true;      // dictates whether the message inside the destination board scrolls
 bool messageChanged = true; // initalized to true to let the message initially show up
-bool old_A0 = false;
-char str[50];
-int messageWidth = 0;
-int y = 3;
+bool old_A0 = false;        // stores the old status of 
+char str[50];               // local copy of the string from flash
+int messageWidth = 0;       // width of the message in pixels
+int x = 2;                  // top-left x coordinate of the message in the destination board
+int y = 3;                  // top-left x coordinate of the message in the destination board
 struct Map char_map;
-long lastMoved = millis();
-int messageId = 3;
+long lastMoved = millis();  // used to keep track of the last time the 
+int messageId = 0;          // index of the message in destinations[] that is currently being displayed
 
 void setup() {
   Serial.begin(9600);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
-  
   display.begin();
-//  display.clearDestinationBoard();
 }
 
 int charsToIntValue(int argc, ...) {
-  va_list argp;
-  va_start(argp, argc);
-  int multiplier = (int) pow(10, argc - 1); // truncation error
+  float f = pow(10, argc - 1);
+  va_list argp;           // store pointer to varargs list
+  va_start(argp, argc);   // initalize varargs list with pointer and the last non-varargs argument in this method
+  int multiplier = (int) f; // truncation error;
   if (argc == 1) {
     multiplier = 1;
   } else if (multiplier % 10 != 0) {
@@ -43,16 +41,16 @@ int charsToIntValue(int argc, ...) {
   }
   int result = 0;
   for (int i = 0; i < argc; i++) {
-    char c = va_arg(argp, int);
+    int index = va_arg(argp, int);
+    char c = pgm_read_word(&characterData[index]);
     result += (c - 48) * multiplier;
     multiplier /= 10;
   }
-  
+  va_end(argp);
   return result;
 }
 
 void printMessage(bool findWidth) {
-//  display.clearDestinationBoard();
   int tempX = x;
   if (findWidth) {
     messageWidth = 0;
@@ -61,9 +59,9 @@ void printMessage(bool findWidth) {
   for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
     if (str[i] != 0) {
       int index = char_map.getCharacterData(str[i]);
-      int numberOfLines = charsToIntValue(2, pgm_read_word(&characterData[index + 1]), pgm_read_word(&characterData[index + 2]));
-      int width = charsToIntValue(1, pgm_read_word(&characterData[index + 3]));
-      int offset = charsToIntValue(4, pgm_read_word(&characterData[index + 4]), pgm_read_word(&characterData[index + 5]), pgm_read_word(&characterData[index + 6]), pgm_read_word(&characterData[index + 7]));
+      int numberOfLines = charsToIntValue(2, index + 1, index + 2);
+      int width = charsToIntValue(1, index + 3);
+      int offset = charsToIntValue(4, index + 4, index + 5, index + 6, index + 7);
       for (int i = 0; i < numberOfLines; i++) {
         int line[4] = {pgm_read_word(&lineData[offset + 0]), pgm_read_word(&lineData[offset + 1]), pgm_read_word(&lineData[offset + 2]), pgm_read_word(&lineData[offset + 3])};
         display.drawLine(line[0] + tempX, line[1] + y, line[2] + tempX, line[3] + y, AMBER);
@@ -94,7 +92,7 @@ void loop() {
     messageChanged = false;
     Serial.println(messageId);
   }
-  if (scrolling && millis() - lastMoved >= 50) {
+  if (scrolling && millis() - lastMoved >= 40) {
     if (x < -messageWidth) {
       x = BOTTOM_RIGHT_CORNER[0] + 3;
     } else {

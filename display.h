@@ -135,10 +135,10 @@ Display::drawImage() {
   for (int x = 0; x < boardWidth; x++) {
     for (int y = 0; y < boardHeight; y++) {
       if (image[x][y] == 2 || image[x][y] == 1) {
-        display.drawPixel(x + TOP_LEFT_CORNER[0] - 1, y + TOP_LEFT_CORNER[1] - 1, BLACK);
+        display.drawPixel(x + TOP_LEFT_CORNER[0], y + TOP_LEFT_CORNER[1] - 1, BLACK);
         image[x][y] = 0;
       } else if (image[x][y] == 3) {
-        display.drawPixel(x + TOP_LEFT_CORNER[0] - 1, y + TOP_LEFT_CORNER[1] - 1, 0x0000FF);
+        display.drawPixel(x + TOP_LEFT_CORNER[0], y + TOP_LEFT_CORNER[1] - 1, AMBER);
         image[x][y] = 1;
       }
     }
