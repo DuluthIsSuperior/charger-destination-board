@@ -1,7 +1,6 @@
 #include "map.h"
 #include "display.h"
 #include <stdarg.h>
-#include <math.h>
 
 const char voltage[] PROGMEM = "";
 const char chicago[] PROGMEM = "CHICAGO";
@@ -11,16 +10,17 @@ const char blue_water[] PROGMEM = "BLUE WATER";
 const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, blue_water};
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
-bool scrolling = true;      // dictates whether the message inside the destination board scrolls
-bool messageChanged = true; // initalized to true to let the message initially show up
-bool old_A0 = false;        // stores the old status of 
-char str[50];               // local copy of the string from flash
-int messageWidth = 0;       // width of the message in pixels
-int x = 2;                  // top-left x coordinate of the message in the destination board
-int y = 3;                  // top-left x coordinate of the message in the destination board
+bool scrolling = true;        // dictates whether the message inside the destination board scrolls
+bool messageChanged = true;   // initalized to true to let the message initially show up
+bool old_A0 = false;          // stores the old status of 
+char str[50];                 // local copy of the string from flash
+int messageWidth = 0;         // width of the message in pixels
+int x = 2;                    // top-left x coordinate of the message in the destination board
+int y = 3;                    // top-left x coordinate of the message in the destination board
 struct Map char_map;
-long lastMoved = millis();  // used to keep track of the last time the 
-int messageId = 0;          // index of the message in destinations[] that is currently being displayed
+long lastMoved = millis();    // used to keep track of the last time the message was scrolled across the screen
+long lastMeasured = millis(); // used to keep track of the last time status was queried (volts, amps, etc.)
+int messageId = 0;            // index of the message in destinations[] that is currently being displayed
 
 void setup() {
   Serial.begin(9600);
@@ -29,16 +29,14 @@ void setup() {
   display.begin();
 }
 
+int power(int x, int y) {
+  return y == 0 ? 1 : x * power(x, y - 1);  // this is here because I'm having problems with the pow function in the math library
+}
+
 int charsToIntValue(int argc, ...) {
-  float f = pow(10, argc - 1);
   va_list argp;           // store pointer to varargs list
   va_start(argp, argc);   // initalize varargs list with pointer and the last non-varargs argument in this method
-  int multiplier = (int) f; // truncation error;
-  if (argc == 1) {
-    multiplier = 1;
-  } else if (multiplier % 10 != 0) {
-    multiplier += 10 - multiplier % 10;
-  }
+  int multiplier = power(10, argc - 1);
   int result = 0;
   for (int i = 0; i < argc; i++) {
     int index = va_arg(argp, int);
@@ -101,7 +99,7 @@ void loop() {
     printMessage(false);
     lastMoved = millis();
   }
-  if (messageId == 0) {
+  if (messageId == 0 && millis() - lastMeasured >= 100) {
     int value = analogRead(A1);
     float R1 = 47000.00;
     float R2 = 22000.00;
@@ -111,6 +109,7 @@ void loop() {
     sprintf(str, "%s%d.%02dV", (voltage < 10.00 ? "0" : ""), (int) voltage, (int) (voltage * 100.0) % 100);
     x = 2;
     printMessage(true);
+    lastMeasured = millis();
   }
   if (digitalRead(A0) == HIGH) {  // if using a button to test this, no code accounts for the button bounce problem
     if (!old_A0) {
