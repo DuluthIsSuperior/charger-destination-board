@@ -3,15 +3,18 @@
 #include <stdarg.h>
 
 const char voltage[] PROGMEM = "";
+const char pere_marquette[] PROGMEM = "PERE MARQUETTE";
+const char grand_rapids[] PROGMEM = "GRAND RAPIDS";
 const char chicago[] PROGMEM = "CHICAGO";
-const char pere_marquette[] PROGMEM = "370 PERE MARQUETTE";
+const char illinois_zephyr[] PROGMEM = "ILLINOIS ZEPHYR";
 const char blue_water[] PROGMEM = "BLUE WATER";
+const char grvmrc[] PROGMEM = "GRVMRC";
+const char wolverine[] PROGMEM = "WOLVERINE";
 
-const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, blue_water};
+const char *const destinations[] PROGMEM = {voltage, pere_marquette, grand_rapids, chicago, illinois_zephyr, blue_water, grvmrc, wolverine};
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
 bool scrolling = true;        // dictates whether the message inside the destination board scrolls
-bool disableScrolling = false;
 bool messageChanged = true;   // initalized to true to let the message initially show up
 bool old_A0 = false;          // stores the old status of
 char str[50];                 // local copy of the string from flash
@@ -82,9 +85,8 @@ void printMessage(bool findWidth) {
   }
 
   scrolling = messageWidth > 47;
-
-  if (!scrolling && !disableScrolling) {
-    display.shiftImage(((boardWidth - messageWidth) / 2);
+  if (!scrolling) {
+    display.shiftImage(((boardWidth - messageWidth) / 2) - 2);
   }
   
   display.drawImage();
@@ -94,12 +96,9 @@ void loop() {
   if (messageChanged) {
     if (messageId != 0) {
       x = 2;
-      disableScrolling = false;
       memset(str, 0, sizeof(str));  // zeros out the string
       strncpy_P(str, pgm_read_word(&destinations[messageId]), 50);
       printMessage(true);
-    } else {
-      disableScrolling = true;
     }
     messageChanged = false;
     Serial.println(messageId);

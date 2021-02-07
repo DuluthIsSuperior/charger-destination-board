@@ -90,9 +90,6 @@ const char *const characterData[320] PROGMEM = {
 '.','0','2','2','0','7','6','8'
 };
 
-const char error[] PROGMEM = "ERROR";
-//const char 
-
 struct Map {
   int getCharacterData(char character) {
     for (int i = 0; i < sizeof(characterData) / sizeof(char*); i += 8) {
@@ -104,6 +101,8 @@ struct Map {
     display.setTextColor(0xFF000);
     display.setTextSize(1);
     display.printText("ERROR");
-    return 720;
+    display.setCursor(0, 26);
+    display.printText("UNKNOWN CHAR");
+    return 724;
   }
 };

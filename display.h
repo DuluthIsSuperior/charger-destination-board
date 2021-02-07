@@ -65,7 +65,7 @@ bool withinBounds(int x, int y) {
 }
 
 Display::drawPixel(int x, int y, int color) {
-  if (x < boardWidth && y < boardHeight) {
+  if (x < boardWidth && x >= 0 && y < boardHeight && y >= 0) {
     if (color == BLACK && withinBounds(x, y) && image[x][y] != 0 && image[x][y] != 2) {
       image[x][y] = 2;
     } else if (color == AMBER && withinBounds(x, y)) {
