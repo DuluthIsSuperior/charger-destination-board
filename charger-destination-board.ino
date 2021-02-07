@@ -11,8 +11,9 @@ const char *const destinations[] PROGMEM = {voltage, chicago, pere_marquette, bl
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
 bool scrolling = true;        // dictates whether the message inside the destination board scrolls
+bool disableScrolling = false;
 bool messageChanged = true;   // initalized to true to let the message initially show up
-bool old_A0 = false;          // stores the old status of 
+bool old_A0 = false;          // stores the old status of
 char str[50];                 // local copy of the string from flash
 int messageWidth = 0;         // width of the message in pixels
 int x = 2;                    // top-left x coordinate of the message in the destination board
@@ -33,6 +34,11 @@ int power(int x, int y) {
   return y == 0 ? 1 : x * power(x, y - 1);  // this is here because I'm having problems with the pow function in the math library
 }
 
+/**
+   Returns the characters converted to one integer given the index for the characterData array
+   argc - the number of arguments this function expects to see
+   ... - chars to conver to integers from left to right
+*/
 int charsToIntValue(int argc, ...) {
   va_list argp;           // store pointer to varargs list
   va_start(argp, argc);   // initalize varargs list with pointer and the last non-varargs argument in this method
@@ -41,7 +47,7 @@ int charsToIntValue(int argc, ...) {
   for (int i = 0; i < argc; i++) {
     int index = va_arg(argp, int);
     char c = pgm_read_word(&characterData[index]);
-    result += (c - 48) * multiplier;
+    result += (c - 48) * multiplier;  // converts the character to a number, then
     multiplier /= 10;
   }
   va_end(argp);
@@ -53,7 +59,7 @@ void printMessage(bool findWidth) {
   if (findWidth) {
     messageWidth = 0;
   }
-  
+
   for (int i = 0; i < sizeof(str) / sizeof(char) - 1; i++) {
     if (str[i] != 0) {
       int index = char_map.getCharacterData(str[i]);
@@ -74,18 +80,26 @@ void printMessage(bool findWidth) {
       break;
     }
   }
-  display.drawImage();
 
   scrolling = messageWidth > 47;
+
+  if (!scrolling && !disableScrolling) {
+    display.shiftImage(13);
+  }
+  
+  display.drawImage();
 }
 
 void loop() {
   if (messageChanged) {
     if (messageId != 0) {
       x = 2;
+      disableScrolling = false;
       memset(str, 0, sizeof(str));  // zeros out the string
       strncpy_P(str, pgm_read_word(&destinations[messageId]), 50);
       printMessage(true);
+    } else {
+      disableScrolling = true;
     }
     messageChanged = false;
     Serial.println(messageId);

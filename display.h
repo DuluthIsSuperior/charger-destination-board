@@ -23,6 +23,8 @@ const int AMBER = 0xFFB400;
 class Display {
   public:
     begin();
+    drawPixel(int x, int y, int color);
+    shiftImage(int x);
     drawLine(int startX, int startY, int endX, int endY, int color);
     setCursor(int x, int y);
     setTextColor(int color);
@@ -62,12 +64,31 @@ bool withinBounds(int x, int y) {
   return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
 }
 
+Display::drawPixel(int x, int y, int color) {
+  if (x < boardWidth && y < boardHeight) {
+    if (color == BLACK && withinBounds(x, y) && image[x][y] != 0 && image[x][y] != 2) {
+      image[x][y] = 2;
+    } else if (color == AMBER && withinBounds(x, y)) {
+      image[x][y] = 3;
+    }
+  }
+}
+
+Display::shiftImage(int x) {
+  int c = 0;
+  for (int xx = boardWidth - 1 - x; xx >= 1; xx--) {
+    for (int yy = 1; yy < boardHeight; yy++) {
+      drawPixel(xx + x, yy, image[xx][yy] == 3 ? AMBER : BLACK);
+      drawPixel(xx, yy, BLACK);
+    }
+  }
+}
+
 Display::drawLine(int startX, int startY, int endX, int endY, int color) {
   startX += TOP_LEFT_CORNER[0];
   startY += TOP_LEFT_CORNER[1];
   endX   += TOP_LEFT_CORNER[0];
   endY   += TOP_LEFT_CORNER[1];
-//  display.drawLine(startX, startY, endX, endY, color);
   if (startX > endX) {
     int temp = startX;
     startX = endX;
@@ -78,23 +99,18 @@ Display::drawLine(int startX, int startY, int endX, int endY, int color) {
     startY = endY;
     endY = temp;
   }
-  if (startY == endY) {
-    int y = startY;
-    for (int x = startX; x <= endX; x++) {
-      if (color == BLACK && withinBounds(x, y) && image[x][y] != 0 && image[x][y] != 2) {
-        image[x][y] = 2;
-      } else if (color == AMBER && withinBounds(x, y)) {
-        image[x][y] = 3;
-      }
-    }
-  } else if (startX == endX) {
-    int x = startX;
-    for (int y = startY; y <= endY; y++) {
-      if (color == BLACK && withinBounds(x, y) && image[x][y] != 0 && image[x][y] != 2) {
-        image[x][y] = 2;
-      } else if (color == AMBER && withinBounds(x, y)) {
-        image[x][y] = 3;
-      }
+  bool isYEqual = startY == endY;
+  bool isXEqual = startX == endX;
+  if (!isXEqual && !isYEqual) {
+    setCursor(0, 16);
+    setTextColor(0xFF0000);
+    setTextSize(1);
+    printText("ERROR: UNEXPECTED DRAW");
+  } else {
+    int *ptr = isYEqual ? &startX : &startY;  // stores a pointer to the variable whether it needs to draw vertically (chooses x) or horizontally (chooses y)
+    int end = isYEqual ? endX : endY;
+    for (; *ptr <= end; (*ptr)++) {
+      drawPixel(startX, startY, color);
     }
   }
 };
