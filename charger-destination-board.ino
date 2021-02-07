@@ -84,7 +84,9 @@ void printMessage(bool findWidth) {
     }
   }
 
-  scrolling = messageWidth > 47;
+  if (findWidth) {
+    scrolling = messageWidth > 43;
+  }
   if (!scrolling) {
     display.shiftImage(((boardWidth - messageWidth) / 2) - 2);
   }
