@@ -103,7 +103,7 @@ Display::drawLine(int startX, int startY, int endX, int endY, int color) {
   bool isXEqual = startX == endX;
   if (!isXEqual && !isYEqual) {
     setCursor(0, 16);
-    setTextColor(0xFF0000);
+    setTextColor(0xFF000);
     setTextSize(1);
     printText("ERROR: UNEXPECTED DRAW");
   } else {

@@ -86,9 +86,12 @@ const char *const characterData[320] PROGMEM = {
 '8','0','7','4','0','6','7','2', // X
 '9','0','5','4','0','7','0','0',
 ' ','0','0','1','0','7','2','0',
-'\0','1','1','3','0','7','0','6',
+'\0','1','1','3','0','7','2','4',
 '.','0','2','2','0','7','6','8'
 };
+
+const char error[] PROGMEM = "ERROR";
+//const char 
 
 struct Map {
   int getCharacterData(char character) {
@@ -97,6 +100,10 @@ struct Map {
         return i;
       }
     }
-    return 304;
+    display.setCursor(0, 18);
+    display.setTextColor(0xFF000);
+    display.setTextSize(1);
+    display.printText("ERROR");
+    return 720;
   }
 };
