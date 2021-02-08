@@ -43,6 +43,7 @@ const int *const lineData[] PROGMEM = {  // character (number of points + starti
   0, 0, 0, 0, // space
   0, 0, 0, 0, 2, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 2, 2, 2, 2, 2, 1, 3, 1, 3, 0, 4, 0, 4, 2, 4, 2, 4, 1, 5, 1, 5, 0, 6, 0, 6, 2, 6, 2, 6, // unknown
   0, 5, 0, 6, 1, 5, 1, 6,  // .
+  0, 4, 0, 5, 0, 1, 0, 2,  // :
 };
 
 // String format: Symbol (first character), number of lines (next 2 digits), width (next digit), starting line data offset (last 4 digits)
@@ -87,7 +88,8 @@ const char *const characterData[320] PROGMEM = {
 '9','0','5','4','0','7','0','0',
 ' ','0','0','1','0','7','2','0',
 '\0','1','1','3','0','7','2','4',
-'.','0','2','2','0','7','6','8'
+'.','0','2','2','0','7','6','8',
+':','0','2','1','0','7','7','6',
 };
 
 struct Map {

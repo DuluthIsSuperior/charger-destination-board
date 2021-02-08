@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 const char voltage[] PROGMEM = "";
+const char runtime[] PROGMEM = "";
 const char pere_marquette[] PROGMEM = "PERE MARQUETTE";
 const char grand_rapids[] PROGMEM = "GRAND RAPIDS";
 const char chicago[] PROGMEM = "CHICAGO";
@@ -11,7 +12,7 @@ const char blue_water[] PROGMEM = "BLUE WATER";
 const char grvmrc[] PROGMEM = "GRVMRC";
 const char wolverine[] PROGMEM = "WOLVERINE";
 
-const char *const destinations[] PROGMEM = {voltage, pere_marquette, grand_rapids, chicago, illinois_zephyr, blue_water, grvmrc, wolverine};
+const char *const destinations[] PROGMEM = {voltage, runtime, pere_marquette, grand_rapids, chicago, illinois_zephyr, blue_water, grvmrc, wolverine};
 const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
 bool scrolling = true;        // dictates whether the message inside the destination board scrolls
@@ -24,7 +25,9 @@ int y = 3;                    // top-left x coordinate of the message in the des
 struct Map char_map;
 long lastMoved = millis();    // used to keep track of the last time the message was scrolled across the screen
 long lastMeasured = millis(); // used to keep track of the last time status was queried (volts, amps, etc.)
-int messageId = 0;            // index of the message in destinations[] that is currently being displayed
+long startUp = millis();
+int messageId = 1;            // index of the message in destinations[] that is currently being displayed
+long measureDelay = 100;
 
 void setup() {
   Serial.begin(9600);
@@ -50,7 +53,7 @@ int charsToIntValue(int argc, ...) {
   for (int i = 0; i < argc; i++) {
     int index = va_arg(argp, int);
     char c = pgm_read_word(&characterData[index]);
-    result += (c - 48) * multiplier;  // converts the character to a number, then
+    result += (c - 48) * multiplier;
     multiplier /= 10;
   }
   va_end(argp);
@@ -94,9 +97,13 @@ void printMessage(bool findWidth) {
   display.drawImage();
 }
 
+bool isStatus(int messageId) {
+  return messageId >= 0 && messageId <= 1;
+}
+
 void loop() {
   if (messageChanged) {
-    if (messageId != 0) {
+    if (!isStatus(messageId)) {
       x = 2;
       memset(str, 0, sizeof(str));  // zeros out the string
       strncpy_P(str, pgm_read_word(&destinations[messageId]), 50);
@@ -105,7 +112,7 @@ void loop() {
     messageChanged = false;
     Serial.println(messageId);
   }
-  if (scrolling && millis() - lastMoved >= 40) {
+  if (scrolling && millis() - lastMoved >= 60) {
     if (x < -messageWidth) {
       x = BOTTOM_RIGHT_CORNER[0] + 3;
     } else {
@@ -114,23 +121,45 @@ void loop() {
     printMessage(false);
     lastMoved = millis();
   }
-  if (messageId == 0 && millis() - lastMeasured >= 100) {
+  if (messageId == 0 && (messageChanged || millis() - lastMeasured >= measureDelay)) {
     int value = analogRead(A1);
     float R1 = 47000.00;
     float R2 = 22000.00;
     float voltage = value * (5.0 / 1024) * ((R1 + R2) / R2);
     memset(str, 0, 8);  // zeros out the string
-    char buffer[8];
     sprintf(str, "%s%d.%02dV", (voltage < 10.00 ? "0" : ""), (int) voltage, (int) (voltage * 100.0) % 100);
     x = 2;
     printMessage(true);
     lastMeasured = millis();
+    messageChanged = false;
+  } else if (messageId == 1 && (messageChanged || millis() - lastMeasured >= measureDelay)) {
+    long time = millis();
+    int days = (time / 86400000) % 9;
+    int hours = (time / 3600000) % 24;
+    int minutes = (time / 60000) % 60;
+    int seconds = (time / 1000) % 60;
+    memset(str, 0, sizeof(str));
+    sprintf(str, "%d:%s%d:%s%d:%s%d", days, hours < 10 ? "0" : "", hours, minutes < 10 ? "0" : "", minutes, seconds < 10 ? "0" : "", seconds);
+    x = 2;
+    printMessage(true);
+    lastMeasured = millis();
+    messageChanged = false;
   }
   if (digitalRead(A0) == HIGH) {  // if using a button to test this, no code accounts for the button bounce problem
     if (!old_A0) {
       messageId++;
       if (messageId % numberOfMessages == 0) {
         messageId = 0;
+      }
+      switch (messageId) {
+        case 0:
+          measureDelay = 100;
+          return;
+        case 1:
+          measureDelay = 1000;
+          return;
+        default:
+          measureDelay = 0;
       }
       messageChanged = true;
       old_A0 = true;
