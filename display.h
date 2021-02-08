@@ -55,7 +55,7 @@ Display::begin() {
     display.begin();
     SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
     fillScreen(0x0);
-    drawRect(TOP_LEFT_CORNER[0] - 1, TOP_LEFT_CORNER[1] - 1, BOTTOM_RIGHT_CORNER[0] + 2, BOTTOM_RIGHT_CORNER[1] + 2, AMBER);
+//    drawRect(TOP_LEFT_CORNER[0] - 1, TOP_LEFT_CORNER[1] - 1, BOTTOM_RIGHT_CORNER[0] + 2, BOTTOM_RIGHT_CORNER[1] + 2, AMBER);
     running = true;
   }
 };
@@ -131,20 +131,12 @@ Display::printText(char* str) {
   display.print(str);
 };
 
-Display::fillRect(int startX, int startY, int endX, int endY, int color) {
-  display.fillRect(startX, startY, endX, endY, color);
-};
-
 Display::drawRect(int startX, int startY, int endX, int endY, int color) {
   display.drawRect(startX, startY, endX, endY, color);
 };
 
 Display::fillScreen(int color) {
   display.fillScreen(color);
-};
-
-Display::clearDestinationBoard() {
-  fillRect(TOP_LEFT_CORNER[0], TOP_LEFT_CORNER[1], BOTTOM_RIGHT_CORNER[0], BOTTOM_RIGHT_CORNER[1], BLACK); // start x, start y, end x, end y
 };
 
 Display::drawImage() {

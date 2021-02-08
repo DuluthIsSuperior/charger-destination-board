@@ -13,12 +13,11 @@ const char grvmrc[] PROGMEM = "GRVMRC";
 const char wolverine[] PROGMEM = "WOLVERINE";
 
 const char *const destinations[] PROGMEM = {voltage, runtime, pere_marquette, grand_rapids, chicago, illinois_zephyr, blue_water, grvmrc, wolverine};
-const int numberOfMessages = sizeof(destinations) / sizeof(char*);
 
 bool scrolling = true;        // dictates whether the message inside the destination board scrolls
 bool messageChanged = true;   // initalized to true to let the message initially show up
 bool old_A0 = false;          // stores the old status of
-char str[50];                 // local copy of the string from flash
+char str[21];                 // local copy of the string from flash
 int messageWidth = 0;         // width of the message in pixels
 int x = 2;                    // top-left x coordinate of the message in the destination board
 int y = 3;                    // top-left x coordinate of the message in the destination board
@@ -27,7 +26,6 @@ long lastMoved = millis();    // used to keep track of the last time the message
 long lastMeasured = millis(); // used to keep track of the last time status was queried (volts, amps, etc.)
 long startUp = millis();
 int messageId = 1;            // index of the message in destinations[] that is currently being displayed
-long measureDelay = 100;
 
 void setup() {
   Serial.begin(9600);
@@ -70,14 +68,13 @@ void printMessage(bool findWidth) {
     if (str[i] != 0) {
       int index = char_map.getCharacterData(str[i]);
       int numberOfLines = charsToIntValue(2, index + 1, index + 2);
-      int width = charsToIntValue(1, index + 3);
       int offset = charsToIntValue(4, index + 4, index + 5, index + 6, index + 7);
       for (int i = 0; i < numberOfLines; i++) {
         int line[4] = {pgm_read_word(&lineData[offset + 0]), pgm_read_word(&lineData[offset + 1]), pgm_read_word(&lineData[offset + 2]), pgm_read_word(&lineData[offset + 3])};
         display.drawLine(line[0] + tempX, line[1] + y, line[2] + tempX, line[3] + y, AMBER);
         offset += 4;
       }
-      int add = width + 1;
+      int add = charsToIntValue(1, index + 3) + 1;  // read value for width of character, then add 1 for spacing between characters
       tempX += add;
       if (findWidth) {
         messageWidth += add;
@@ -121,7 +118,7 @@ void loop() {
     printMessage(false);
     lastMoved = millis();
   }
-  if (messageId == 0 && (messageChanged || millis() - lastMeasured >= measureDelay)) {
+  if (messageId == 0 && (messageChanged || millis() - lastMeasured >= 100)) {
     int value = analogRead(A1);
     float R1 = 47000.00;
     float R2 = 22000.00;
@@ -132,7 +129,7 @@ void loop() {
     printMessage(true);
     lastMeasured = millis();
     messageChanged = false;
-  } else if (messageId == 1 && (messageChanged || millis() - lastMeasured >= measureDelay)) {
+  } else if (messageId == 1 && (messageChanged || millis() - lastMeasured >= 1000)) {
     long time = millis();
     int days = (time / 86400000) % 9;
     int hours = (time / 3600000) % 24;
@@ -148,18 +145,8 @@ void loop() {
   if (digitalRead(A0) == HIGH) {  // if using a button to test this, no code accounts for the button bounce problem
     if (!old_A0) {
       messageId++;
-      if (messageId % numberOfMessages == 0) {
+      if (messageId % (sizeof(destinations) / sizeof(char*)) == 0) {
         messageId = 0;
-      }
-      switch (messageId) {
-        case 0:
-          measureDelay = 100;
-          return;
-        case 1:
-          measureDelay = 1000;
-          return;
-        default:
-          measureDelay = 0;
       }
       messageChanged = true;
       old_A0 = true;
