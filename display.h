@@ -12,8 +12,8 @@
 #define rst  3
 #define dc   2
 
-const int TOP_LEFT_CORNER[] = {1, 1};
-const int BOTTOM_RIGHT_CORNER[] = {49, 14};
+const int TOP_LEFT_CORNER[] = {10, 1};
+const int BOTTOM_RIGHT_CORNER[] = {TOP_LEFT_CORNER[0] + 48, TOP_LEFT_CORNER[1] + 13};
 const int boardWidth = BOTTOM_RIGHT_CORNER[0] - TOP_LEFT_CORNER[0] + 1;
 const int boardHeight = BOTTOM_RIGHT_CORNER[1] - TOP_LEFT_CORNER[1] + 1;
 char image[boardWidth][boardHeight]; // [x][y]: 0 = black, 1 = amber, 2 = change to black, 3 = change to amber (using char since it's shorter than an int)
@@ -55,7 +55,7 @@ Display::begin() {
     display.begin();
     SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
     fillScreen(0x0);
-//    drawRect(TOP_LEFT_CORNER[0] - 1, TOP_LEFT_CORNER[1] - 1, BOTTOM_RIGHT_CORNER[0] + 2, BOTTOM_RIGHT_CORNER[1] + 2, AMBER);
+    drawRect(TOP_LEFT_CORNER[0] - 1, TOP_LEFT_CORNER[1] - 1, BOTTOM_RIGHT_CORNER[0] - 7, BOTTOM_RIGHT_CORNER[1] + 2, AMBER);
     running = true;
   }
 };
@@ -75,7 +75,6 @@ Display::drawPixel(int x, int y, int color) {
 }
 
 Display::shiftImage(int x) {
-  int c = 0;
   for (int xx = boardWidth - 1 - x; xx >= 1; xx--) {
     for (int yy = 1; yy < boardHeight; yy++) {
       drawPixel(xx + x, yy, image[xx][yy] == 3 ? AMBER : BLACK);
@@ -85,10 +84,6 @@ Display::shiftImage(int x) {
 }
 
 Display::drawLine(int startX, int startY, int endX, int endY, int color) {
-  startX += TOP_LEFT_CORNER[0];
-  startY += TOP_LEFT_CORNER[1];
-  endX   += TOP_LEFT_CORNER[0];
-  endY   += TOP_LEFT_CORNER[1];
   if (startX > endX) {
     int temp = startX;
     startX = endX;
@@ -143,10 +138,10 @@ Display::drawImage() {
   for (int x = 0; x < boardWidth; x++) {
     for (int y = 0; y < boardHeight; y++) {
       if (image[x][y] == 2 || image[x][y] == 1) {
-        display.drawPixel(x + TOP_LEFT_CORNER[0], y + TOP_LEFT_CORNER[1] - 1, BLACK);
+        display.drawPixel(x + TOP_LEFT_CORNER[0], y + TOP_LEFT_CORNER[1], BLACK);
         image[x][y] = 0;
       } else if (image[x][y] == 3) {
-        display.drawPixel(x + TOP_LEFT_CORNER[0], y + TOP_LEFT_CORNER[1] - 1, AMBER);
+        display.drawPixel(x + TOP_LEFT_CORNER[0], y + TOP_LEFT_CORNER[1], AMBER);
         image[x][y] = 1;
       }
     }
