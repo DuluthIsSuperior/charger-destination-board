@@ -12,7 +12,7 @@
 #define rst  3
 #define dc   2
 
-const int TOP_LEFT_CORNER[] = {10, 1};
+const int TOP_LEFT_CORNER[] = {10, 8};
 const int BOTTOM_RIGHT_CORNER[] = {TOP_LEFT_CORNER[0] + 48, TOP_LEFT_CORNER[1] + 13};
 const int boardWidth = BOTTOM_RIGHT_CORNER[0] - TOP_LEFT_CORNER[0] + 1;
 const int boardHeight = BOTTOM_RIGHT_CORNER[1] - TOP_LEFT_CORNER[1] + 1;
@@ -55,7 +55,7 @@ Display::begin() {
     display.begin();
     SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));
     fillScreen(0x0);
-    drawRect(TOP_LEFT_CORNER[0] - 1, TOP_LEFT_CORNER[1] - 1, BOTTOM_RIGHT_CORNER[0] - 7, BOTTOM_RIGHT_CORNER[1] + 2, AMBER);
+    drawRect(TOP_LEFT_CORNER[0] - 1, TOP_LEFT_CORNER[1] - 1, BOTTOM_RIGHT_CORNER[0] + 1, BOTTOM_RIGHT_CORNER[1] + 1, 0xF00F);
     running = true;
   }
 };
@@ -127,7 +127,10 @@ Display::printText(char* str) {
 };
 
 Display::drawRect(int startX, int startY, int endX, int endY, int color) {
-  display.drawRect(startX, startY, endX, endY, color);
+  display.drawLine(startX, startY, endX, startY, color);
+  display.drawLine(startX, startY, startX, endY, color);
+  display.drawLine(endX, startY, endX, endY, color);
+  display.drawLine(startX, endY, endX, endY, color);
 };
 
 Display::fillScreen(int color) {
