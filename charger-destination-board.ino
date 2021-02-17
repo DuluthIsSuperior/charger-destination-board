@@ -15,6 +15,7 @@ const char wolverine[] PROGMEM = "WOLVERINE";
 const char *const destinations[] PROGMEM = {voltage, runtime, pere_marquette, grand_rapids, chicago, illinois_zephyr, blue_water, grvmrc, wolverine};
 
 bool scrolling = true;        // dictates whether the message inside the destination board scrolls
+bool disableScrolling = true;
 bool messageChanged = true;   // initalized to true to let the message initially show up
 bool old_A0 = false;          // stores the old status of
 char str[21];                 // local copy of the string from flash
@@ -85,7 +86,7 @@ void printMessage(bool findWidth) {
   }
 
   if (findWidth) {
-    scrolling = messageWidth > 43;
+    scrolling = messageWidth > 43 && !disableScrolling;
   }
   if (!scrolling) {
     display.shiftImage(((boardWidth - messageWidth) / 2) - 2);
@@ -119,6 +120,7 @@ void loop() {
     lastMoved = millis();
   }
   if (messageId == 0 && (messageChanged || millis() - lastMeasured >= 100)) {
+    disableScrolling = true;
     int value = analogRead(A1);
     float R1 = 47000.00;
     float R2 = 22000.00;
@@ -130,6 +132,7 @@ void loop() {
     lastMeasured = millis();
     messageChanged = false;
   } else if (messageId == 1 && (messageChanged || millis() - lastMeasured >= 1000)) {
+    disableScrolling = true;
     long time = millis();
     int days = (time / 86400000) % 9;
     int hours = (time / 3600000) % 24;
@@ -141,6 +144,8 @@ void loop() {
     printMessage(true);
     lastMeasured = millis();
     messageChanged = false;
+  } else {
+    disableScrolling = false;
   }
   if (digitalRead(A0) == HIGH) {  // if using a button to test this, no code accounts for the button bounce problem
     if (!old_A0) {
